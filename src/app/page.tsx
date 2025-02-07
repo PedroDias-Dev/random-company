@@ -3,8 +3,10 @@
 import { Button } from "@/components/ui/button";
 import { ChartGantt } from "lucide-react";
 import { useLoading } from "./contexts/loading";
+import { useRouter } from "next/navigation";
 
 export default function Home() {
+  const router = useRouter();
   const { setLoading } = useLoading();
 
   return (
@@ -21,13 +23,18 @@ export default function Home() {
         </span>
 
         <Button
-          onClick={() =>
+          onClick={() => {
             setLoading({
               loading: true,
               text: "please wait, as we set everything up for you",
               showTimer: true,
-            })
-          }
+            });
+
+            setTimeout(() => {
+              setLoading({ loading: false });
+              router.push("/authorized/dashboard");
+            }, 3000);
+          }}
         >
           Create a company
         </Button>
