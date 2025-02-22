@@ -26,7 +26,7 @@ export default function RootLayout({
         <body className={inconsolata.className}>
           <Transition>
             <div className="w-screen h-screen bg-zinc-900 relative overflow-hidden">
-              <LoadingProvider>{children}</LoadingProvider>
+              {children}
             </div>
           </Transition>
         </body>
