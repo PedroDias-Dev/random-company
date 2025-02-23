@@ -17,11 +17,12 @@ import {
 import { Input } from "@/components/ui/input";
 import { useLoading } from "@/app/contexts/loading";
 
-import { ChartGantt, ChevronRight, LogIn } from "lucide-react";
+import { ChevronLeft, ChevronRight, LogIn } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
 import { useState } from "react";
 import { PasswordInput } from "@/components/ui/password-input";
+import SwitchTransition from "@/components/animations/switch-transition";
 
 const FormSchema = z.object({
   email: z.string().min(2, {
@@ -38,8 +39,6 @@ export default function Home() {
 
   const [view, setView] = useState<"email" | "password">("email");
 
-  console.log(view);
-
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
@@ -47,7 +46,7 @@ export default function Home() {
     },
   });
 
-  function onSubmit(data: z.infer<typeof FormSchema>) {
+  function onSubmit() {
     setLoading({
       loading: true,
       text: "please wait, as we set everything up for you",
@@ -80,15 +79,10 @@ export default function Home() {
                 onSubmit={form.handleSubmit(onSubmit)}
                 className="w-full space-y-6 overflow-hidden"
               >
-                <AnimatePresence mode="wait">
-                  {view === "email" ? (
-                    <motion.div
-                      key="open"
-                      initial={{ y: 3, opacity: 0 }}
-                      animate={{ y: 0, opacity: 1 }}
-                      exit={{ y: -3, opacity: 0 }}
-                      transition={{ duration: 0.2 }}
-                    >
+                <SwitchTransition
+                  state={view}
+                  components={{
+                    email: (
                       <FormField
                         control={form.control}
                         name="email"
@@ -102,21 +96,14 @@ export default function Home() {
                               />
                             </FormControl>
                             <FormDescription>
-                              This is your "corporate" e-mail.
+                              {'This is your "corporate" e-mail.'}
                             </FormDescription>
                             <FormMessage />
                           </FormItem>
                         )}
                       />
-                    </motion.div>
-                  ) : (
-                    <motion.div
-                      key="closed"
-                      initial={{ y: 3, opacity: 0 }}
-                      animate={{ y: 0, opacity: 1 }}
-                      exit={{ y: -3, opacity: 0 }}
-                      transition={{ duration: 0.2 }}
-                    >
+                    ),
+                    password: (
                       <FormField
                         control={form.control}
                         name="password"
@@ -133,45 +120,52 @@ export default function Home() {
                           </FormItem>
                         )}
                       />
-                    </motion.div>
-                  )}
-                </AnimatePresence>
+                    ),
+                  }}
+                />
 
-                <div className="w-full justify-end flex gap-2">
-                  <AnimatePresence mode="wait">
-                    {view === "email" ? (
-                      <motion.div
-                        key="next"
-                        initial={{ opacity: 0, x: 10 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        exit={{ opacity: 0, x: -10 }}
-                        transition={{ duration: 0.2, ease: "easeInOut" }}
-                      >
+                <div className="w-full justify-between items-center flex gap-2">
+                  <SwitchTransition
+                    state={view}
+                    components={{
+                      email: (
+                        <span
+                          className="text-accent text-sm flex items-center gap-2 hover:underline cursor-pointer"
+                          onClick={() => router.push("/unauthorized/register")}
+                        >
+                          Create an account
+                        </span>
+                      ),
+                      password: (
+                        <span
+                          className="text-accent text-sm flex items-center gap-2 hover:underline cursor-pointer"
+                          onClick={() => setView("email")}
+                        >
+                          <ChevronLeft size={16} /> Go back
+                        </span>
+                      ),
+                    }}
+                  />
+
+                  <SwitchTransition
+                    state={view}
+                    transitionType="x"
+                    components={{
+                      email: (
                         <Button
                           type="button"
                           onClick={() => setView("password")}
                         >
                           Next <ChevronRight size={16} />
                         </Button>
-                      </motion.div>
-                    ) : (
-                      <motion.div
-                        key="login"
-                        initial={{ opacity: 0, x: 10 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        exit={{
-                          opacity: 0,
-                          x: -10,
-                          transition: { delay: 0.3 },
-                        }} // Exit delay
-                        transition={{ duration: 0.2, ease: "easeInOut" }}
-                      >
+                      ),
+                      password: (
                         <Button variant="secondary" type="submit">
                           Login <LogIn size={16} />
                         </Button>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
+                      ),
+                    }}
+                  />
                 </div>
               </motion.form>
             </Form>
